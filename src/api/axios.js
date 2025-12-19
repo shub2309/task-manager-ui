@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseURL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '') + '/api';
-
+console.log(baseURL);
 const api = axios.create({
   baseURL: baseURL.replace('/api/api', '/api'), // Prevent double /api if user added it
   withCredentials: false,
