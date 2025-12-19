@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -33,35 +34,72 @@ const Projects = () => {
     }
   };
 
+  const handleDeleteProject = (e, projectId) => {
+    e.stopPropagation();
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      background: '#1e1b4b',
+      color: '#fff',
+      showCancelButton: true,
+      confirmButtonColor: '#f472b6',
+      cancelButtonColor: '#4b5563',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        api.delete(`/projects/${projectId}`).then(() => {
+          fetchProjects();
+          Swal.fire({
+            title: 'Deleted!',
+            text: 'Your project has been deleted.',
+            icon: 'success',
+            background: '#1e1b4b',
+            color: '#fff',
+            confirmButtonColor: '#f472b6'
+          });
+        });
+      }
+    });
+  };
+
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Projects</h1>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 700 }}>Projects</h1>
         {user?.role === 'ADMIN' && (
-          <form onSubmit={handleCreateProject} className="flex gap-2">
+          <form onSubmit={handleCreateProject} style={{ display: 'flex', gap: '1rem' }}>
             <input
               type="text"
               placeholder="New Project Name"
-              className="border p-2 rounded"
+              style={{ width: '250px', margin: 0 }}
               value={newProjectName}
               onChange={(e) => setNewProjectName(e.target.value)}
               required
             />
-            <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">Create</button>
+            <button type="submit" className="primary-btn" style={{ width: 'auto' }}>Create</button>
           </form>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
         {projects.map((project) => (
           <div
             key={project.id}
-            className="bg-white p-6 rounded shadow hover:shadow-lg cursor-pointer transition"
+            className="glass-card"
+            style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }}
             onClick={() => navigate(`/projects/${project.id}`)}
           >
-            <h2 className="text-xl font-semibold mb-2">{project.name}</h2>
-            <p className="text-gray-600">{project.description || 'No description'}</p>
-            <div className="mt-4 text-sm text-gray-400">Owner: {project.owner?.name}</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem' }}>{project.name}</h2>
+            {user?.role === 'ADMIN' && (
+              <button
+                onClick={(e) => handleDeleteProject(e, project.id)}
+                className="status-overdue"
+                style={{ border: 'none', cursor: 'pointer', fontSize: '0.8rem', marginTop: '1rem', padding: '0.5rem 1rem' }}
+              >
+                Delete
+              </button>
+            )}
           </div>
         ))}
       </div>
