@@ -4,7 +4,7 @@ const baseURL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').re
 
 const api = axios.create({
   baseURL: baseURL.replace('/api/api', '/api'), // Prevent double /api if user added it
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     'Accept': 'application/json',
     "Content-Type": "application/json",
